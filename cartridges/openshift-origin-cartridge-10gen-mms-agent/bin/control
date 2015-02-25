@@ -20,7 +20,7 @@ function get_process() {
   then
     echo ${OPENSHIFT_GEAR_UUID}_agent.py
   else
-    echo "mongodb-mms-monitoring-agent"
+    echo "mongodb-mms-automation-agent"
   fi
 }
 
@@ -56,12 +56,15 @@ function start() {
       if [ -n "${OPENSHIFT_MMS_API_KEY}" ]
       then
         pushd ${OPENSHIFT_MMS_BASE_DIR} >/dev/null
-        sed -i "s/^mmsApiKey\s*=.*/mmsApiKey=${OPENSHIFT_MMS_API_KEY}/g" monitoring-agent.config
+        sed -i "s/^mmsApiKey\s*=.*/mmsApiKey=${OPENSHIFT_MMS_API_KEY}/g" local.config
+        # TODO add mmsGroupId, logfile and configbackup
         LOGPIPE=${OPENSHIFT_HOMEDIR}/app-root/runtime/logshifter-10gen-mms-agent
         rm -f $LOGPIPE && mkfifo $LOGPIPE
 
         /usr/bin/logshifter -tag 10gen-mms-agent < $LOGPIPE &
-        nohup ${OPENSHIFT_MMS_BASE_DIR}/mongodb-mms-monitoring-agent &> $LOGPIPE &
+        # nohup ${OPENSHIFT_MMS_BASE_DIR}/mongodb-mms-automation-agent &> $LOGPIPE &
+        nohup ${OPENSHIFT_MMS_BASE_DIR}/mongodb-mms-automation-agent --config=${OPENSHIFT_MMS_BASE_DIR}/local.config &> $LOGPIPE &
+        # TODO pidfilepath
         echo $! > ${OPENSHIFT_10GENMMSAGENT_DIR}/run/mms-agent.pid
         popd >/dev/null
       else

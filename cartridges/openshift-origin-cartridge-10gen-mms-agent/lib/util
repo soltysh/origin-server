@@ -5,11 +5,13 @@ export OPENSHIFT_MMS_BASE_DIR=${OPENSHIFT_DATA_DIR}mms-agent
 export OPENSHIFT_MMS_SOURCES_DIR=${OPENSHIFT_REPO_DIR}/.openshift/mms
 
 function agent_sources_exists {
-  stat -t ${OPENSHIFT_MMS_SOURCES_DIR}/mongodb-mms-monitoring-agent*.tar.gz &>/dev/null
+  echo "Checking for MMS..."
+  stat -t ${OPENSHIFT_MMS_SOURCES_DIR}/mongodb-mms-automation-agent*.tar.gz &>/dev/null
 }
 
 function is_agent_installed {
-  [ -f "${OPENSHIFT_MMS_BASE_DIR}/monitoring-agent.config" ]
+  # TODO check other package config file names
+  [ -f "${OPENSHIFT_MMS_BASE_DIR}/local.config" ]
 }
 
 function install_agent_sources {
@@ -22,7 +24,7 @@ function install_agent_sources {
   pushd $OPENSHIFT_MMS_BASE_DIR >/dev/null
   echo "Installing MMS agent sources..."
   tar --strip-components=1 -xzvf \
-    ${OPENSHIFT_MMS_SOURCES_DIR}/mongodb-mms-monitoring-agent*.tar.gz \
+    ${OPENSHIFT_MMS_SOURCES_DIR}/mongodb-mms-automation-agent*.tar.gz \
     -C ${OPENSHIFT_MMS_BASE_DIR}
   if [ $? -gt 0 ]; then
     client_error "Error during extracting the mongodb mms agent archive."
